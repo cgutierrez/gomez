@@ -37,13 +37,27 @@ type runner struct {
   UseSudo bool
 }
 
-func SetQuiet(beQuiet bool) {
+func SilenceOutput(beQuiet bool) {
   HideCommandOutput = beQuiet
 }
 
-func Output(message string) {
+func OutputLocal(message string) {
 
+  if HideCommandOutput || len(message) == 0 {
+    return
+  }
+
+  fmt.Printf("local: %s\n", message)
 }
+
+func OutputRemote(host Host, message string) {
+  if HideCommandOutput || len(message) == 0 {
+    return
+  }
+
+  fmt.Printf("%s: %s\n", host.Host, message)
+}
+
 
 func NewClient(hosts []map[string]string) *ClientConfig {
 
@@ -118,9 +132,7 @@ func (config *ClientConfig) Put(source string, destination string) {
         log.Fatalln(err)
       }
 
-      if !HideCommandOutput {
-        fmt.Printf("local: copy %s to %s:%s\n", file, host.Host, destination)
-      }
+      OutputLocal(fmt.Sprintf("copy %s to %s:%s", file, host.Host, destination))
 
       go func(c *ssh.Client, s *ssh.Session, swg *sync.WaitGroup, fileName string, mode os.FileMode) {
 
@@ -143,7 +155,7 @@ func (config *ClientConfig) Put(source string, destination string) {
         stdOutScanner := bufio.NewScanner(stdOutReader)
         go func() {
           for stdOutScanner.Scan() {
-            fmt.Printf("%s: %s\n", host.Host, stdOutScanner.Text())
+            OutputRemote(host, stdOutScanner.Text())
           }
 
           defer sessionWaitGroup.Done()
@@ -152,7 +164,7 @@ func (config *ClientConfig) Put(source string, destination string) {
         stdErrScanner := bufio.NewScanner(stdErrReader)
         go func() {
           for stdErrScanner.Scan() {
-            fmt.Printf("%s: %s\n", host.Host, stdErrScanner.Text())
+            OutputRemote(host, stdErrScanner.Text())
           }
 
           defer sessionWaitGroup.Done()
@@ -220,9 +232,7 @@ func (config *ClientConfig) local(cmd string, captureOutput bool) (string, error
     return string(cmdOutput), nil
   }
 
-  if !HideCommandOutput {
-    fmt.Printf("%s: %s\n", "local", cmdStr)
-  }
+  OutputLocal(cmdStr)
 
   stdOutReader, err := execCmd.StdoutPipe()
   stdErrReader, err := execCmd.StderrPipe()
@@ -234,18 +244,14 @@ func (config *ClientConfig) local(cmd string, captureOutput bool) (string, error
   stdOutScanner := bufio.NewScanner(stdOutReader)
   go func() {
     for stdOutScanner.Scan() {
-      if !HideCommandOutput {
-        fmt.Printf("local: %s\n", stdOutScanner.Text())
-      }
+      OutputLocal(stdOutScanner.Text())
     }
   }()
 
   stdErrScanner := bufio.NewScanner(stdErrReader)
   go func() {
     for stdErrScanner.Scan() {
-      if !HideCommandOutput {
-        fmt.Printf("local: %s\n", stdErrScanner.Text())
-      }
+      OutputLocal(stdErrScanner.Text())
     }
   }()
 
@@ -327,7 +333,7 @@ func (runner *runner) run(cmd string) {
     sudoRunner.handlePrompt(runner, sudoChannel)
   }
 
-  fmt.Printf("%s: %s\n", runner.Host.Host, cmdDisplay)
+  OutputRemote(runner.Host, cmdDisplay)
 
   // conditionally create the stdOut reader. If using sudo, the sudo handler will
   // handle displaying output.
@@ -341,9 +347,7 @@ func (runner *runner) run(cmd string) {
     stdOutScanner := bufio.NewScanner(stdOutReader)
     go func() {
       for stdOutScanner.Scan() {
-        if !HideCommandOutput {
-          fmt.Printf("%s: %s\n", runner.Host.Host, stdOutScanner.Text())
-        }
+        OutputRemote(runner.Host, stdOutScanner.Text())
       }
 
       defer runner.WaitGroup.Done()
@@ -359,9 +363,7 @@ func (runner *runner) run(cmd string) {
   stdErrScanner := bufio.NewScanner(stdErrReader)
   go func() {
     for stdErrScanner.Scan() {
-      if !HideCommandOutput {
-        fmt.Printf("%s: %s\n", runner.Host.Host, stdErrScanner.Text())
-      }
+      OutputRemote(runner.Host, stdErrScanner.Text())
     }
 
     defer runner.WaitGroup.Done()

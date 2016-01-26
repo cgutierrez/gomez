@@ -5,7 +5,6 @@ import (
   "log"
   "io"
   "bufio"
-  "os"
 
   "github.com/gcmurphy/getpass"
 )
@@ -100,13 +99,11 @@ func (sudo *sudoRunner) sendPassword(runner *runner, writer io.Writer, reader io
           continue
         }
 
-        if scanner.Text() != matcher.stringToFind {
-          fmt.Println(scanner.Text())
+        if matcher.Match(scanner.Bytes()) {
+          continue
         }
-      }
 
-      if err := scanner.Err(); err != nil {
-        fmt.Fprintln(os.Stderr, "There was an error with the scanner in attached container", err)
+        OutputRemote(runner.Host, scanner.Text())
       }
 
       break
