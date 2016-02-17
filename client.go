@@ -50,7 +50,7 @@ func LoadDefaultKeyFiles() ([]ssh.Signer, error) {
 
 func CreateSession(host *Host) (*ssh.Client, *ssh.Session, error) {
 
-	sshConfig := &ssh.ClientConfig{
+	sshConfig := &ssh.ClientConfig {
 		User: host.User,
 		Auth: []ssh.AuthMethod{},
 	}
@@ -79,9 +79,10 @@ func CreateSession(host *Host) (*ssh.Client, *ssh.Session, error) {
 
 	if host.Password == "" && host.KeyFile == "" {
 		sshConfig.Auth = append(sshConfig.Auth, ssh.PasswordCallback(func() (string, error) {
-			password, err := getpass.GetPassWithOptions(fmt.Sprintf("enter password for %s:", host.Host), 0, 100)
+			password, err := getpass.GetPassWithOptions(fmt.Sprintf("enter password for %s@%s: ", host.User, host.Host), 0, 100)
 
 			if err != nil {
+        fmt.Println(err.Error())
 				return password, err
 			}
 
@@ -90,7 +91,7 @@ func CreateSession(host *Host) (*ssh.Client, *ssh.Session, error) {
 		}))
 	}
 
-	client, err := ssh.Dial("tcp", host.Host+":"+host.Port, sshConfig)
+	client, err := ssh.Dial("tcp", host.Host + ":" + host.Port, sshConfig)
 
 	if err != nil {
 		fmt.Println(err.Error())

@@ -7,3 +7,7 @@ In order to build this correctly on OS X, You need to install OpenSSL using home
 go get github.com/gcmurphy/getpass
 go get golang.org/x/crypto/ssh
 ```
+
+## Extremely helpful libraries
+- [https://github.com/wingedpig/loom](https://github.com/wingedpig/loom)
+- [https://github.com/laher/scp-go](https://github.com/laher/scp-go)

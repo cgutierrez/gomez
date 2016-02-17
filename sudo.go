@@ -19,14 +19,18 @@ type sudoMatcher struct {
 	totalMatchLength  int
 }
 
+func WrapSudoCommand(cmd string) (string) {
+  return fmt.Sprintf("/usr/bin/sudo bash <<CMD\nexport PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin\n%s\nCMD", cmd)
+}
+
 func (sudo *sudoRunner) handlePrompt(runner *runner, done <-chan bool) {
 
-	writer, err := runner.Session.StdinPipe()
+	writer, err := runner.session.StdinPipe()
 	if err != nil {
 		panic("Failed to run: " + err.Error())
 	}
 
-	reader, err := runner.Session.StdoutPipe()
+	reader, err := runner.session.StdoutPipe()
 	if err != nil {
 		panic("Failed to run: " + err.Error())
 	}
@@ -36,23 +40,23 @@ func (sudo *sudoRunner) handlePrompt(runner *runner, done <-chan bool) {
 
 func (sudo *sudoRunner) promptForPassword(runner *runner, writer io.Writer) (string, error) {
 
-	if runner.Host.Password == "" {
+	if runner.host.Password == "" {
 
-		password, err := getpass.GetPassWithOptions(fmt.Sprintf("enter sudo password for %s: ", runner.Host.Host), 0, 100)
+		password, err := getpass.GetPassWithOptions(fmt.Sprintf("enter sudo password for %s: ", runner.host.Host), 0, 100)
 
 		if err != nil {
 			return password, err
 		}
 
-		runner.Host.Password = password
+		runner.host.Password = password
 	}
 
-	return runner.Host.Password, nil
+	return runner.host.Password, nil
 }
 
 func (sudo *sudoRunner) sendPassword(runner *runner, writer io.Writer, reader io.Reader, done <-chan bool) {
 
-	matcher := newSudoMatcher(runner.Host.User)
+	matcher := newSudoMatcher(runner.host.User)
 
 	for {
 		select {
@@ -88,7 +92,7 @@ func (sudo *sudoRunner) sendPassword(runner *runner, writer io.Writer, reader io
 
 				if scanner.Text() == "Sorry, try again." {
 
-					runner.Host.Password = ""
+					runner.host.Password = ""
 					password, err := sudo.promptForPassword(runner, writer)
 
 					if err != nil {
@@ -103,7 +107,7 @@ func (sudo *sudoRunner) sendPassword(runner *runner, writer io.Writer, reader io
 					continue
 				}
 
-				OutputRemote(runner.Host, scanner.Text())
+				OutputRemote(runner.host, scanner.Text())
 			}
 
 			break
