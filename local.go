@@ -26,8 +26,8 @@ func (config *ClientConfig) local(cmd string, options CmdOptions) (CmdResult) {
   sessionWaitGroup.Add(2)
 
   cdCmd := ""
-  if config.CurrentDirectory != "" {
-    cdCmd = "cd " + config.CurrentDirectory + " && "
+  if options.WorkingDirectory != "" {
+    cdCmd = "cd " + options.WorkingDirectory + " && "
   }
 
   cmdStr := cdCmd + cmd

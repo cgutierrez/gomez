@@ -16,8 +16,6 @@ func (config *ClientConfig) Put(source string, destination string) {
     log.Fatalln(err)
   }
 
-  var sessionWaitGroup sync.WaitGroup
-
   for _, file := range files {
 
     fileReader, err := os.Open(file)
@@ -32,6 +30,8 @@ func (config *ClientConfig) Put(source string, destination string) {
 
     mode := uint32(fileInfo.Mode().Perm())
     header := fmt.Sprintf("C%04o %d %s\n", mode, fileInfo.Size(), filepath.Base(file))
+
+    var sessionWaitGroup sync.WaitGroup
 
     for _, host := range config.Hosts {
 
@@ -76,8 +76,8 @@ func (config *ClientConfig) Put(source string, destination string) {
           os.Exit(1)
         }
       }()
+
+      sessionWaitGroup.Wait()
     }
   }
-
-  sessionWaitGroup.Wait()
 }

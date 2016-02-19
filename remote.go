@@ -2,12 +2,9 @@ package gomez
 
 import (
   "bufio"
-  _"fmt"
-  _"io/ioutil"
+  "fmt"
   "log"
   "os"
-  _"os/exec"
-  _"path/filepath"
   "io"
   "sync"
 
@@ -87,8 +84,8 @@ func (runner *runner) run(cmd string) {
 
   // switch the current working directory
   cdCmd := ""
-  if runner.clientConfig.CurrentDirectory != "" {
-    cdCmd = "cd " + runner.clientConfig.CurrentDirectory + " && "
+  if runner.cmdOptions.WorkingDirectory != "" {
+    cdCmd = "cd " + runner.cmdOptions.WorkingDirectory + " && "
   }
 
   cmdStr := cdCmd + cmd
@@ -96,7 +93,7 @@ func (runner *runner) run(cmd string) {
 
   sudoChannel := make(chan bool)
   if runner.cmdOptions.UseSudo {
-    cmdStr = WrapSudoCommand(cmd)
+    cmdStr = WrapSudoCommand(cmdStr)
     sudoRunner := sudoRunner{}
     sudoRunner.handlePrompt(runner, sudoChannel)
   }

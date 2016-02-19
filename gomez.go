@@ -28,6 +28,7 @@ type CmdResult struct {
 type CmdOptions struct {
   UseSudo bool
   CaptureOutput bool
+  WorkingDirectory string
 }
 
 type Host struct {
@@ -128,6 +129,6 @@ func NewLocalClient() *ClientConfig {
 	return &ClientConfig { localhost: localhost }
 }
 
-func (config *ClientConfig) NewClientInWorkingDirectory(workingDirectory string) *ClientConfig {
-	return &ClientConfig { Hosts: config.Hosts, CurrentDirectory: workingDirectory, localhost: localhost }
-}
+// func (config *ClientConfig) NewClientInWorkingDirectory(workingDirectory string) *ClientConfig {
+// 	return &ClientConfig { Hosts: config.Hosts, CurrentDirectory: workingDirectory, localhost: localhost }
+// }
