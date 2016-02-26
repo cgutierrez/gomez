@@ -2,7 +2,7 @@ package gomez
 
 import (
   "bufio"
-  "fmt"
+  _"fmt"
   "log"
   "os"
   "io"
