@@ -4,7 +4,7 @@ In order to build this correctly on OS X, You need to install OpenSSL using home
 ```bash
 brew install openssl && brew link openssl --force
 ```
-Then you need to create a symlink to OpenSSL in `/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include` with 
+Then you need to create a symlink to OpenSSL in `/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include` with
 
 ```bash
 cd /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
@@ -16,6 +16,11 @@ sudo ln -s /usr/local/opt/openssl/include/openssl openssl
 go get github.com/gcmurphy/getpass
 go get golang.org/x/crypto/ssh
 ```
+
+## API
+
+
+
 
 ## Extremely helpful libraries
 - [https://github.com/wingedpig/loom](https://github.com/wingedpig/loom)

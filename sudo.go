@@ -19,8 +19,8 @@ type sudoMatcher struct {
 	totalMatchLength  int
 }
 
-func WrapSudoCommand(cmd string) (string) {
-  return fmt.Sprintf("/usr/bin/sudo bash <<CMD\nexport PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin\n%s\nCMD", cmd)
+func WrapSudoCommand(cmd string) string {
+	return fmt.Sprintf("/usr/bin/sudo bash <<CMD\nexport PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin\n%s\nCMD", cmd)
 }
 
 func (sudo *sudoRunner) handlePrompt(runner *runner, done <-chan bool) {

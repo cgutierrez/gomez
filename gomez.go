@@ -1,34 +1,33 @@
 package gomez
 
 import (
-	_"bufio"
+	_ "bufio"
 	"fmt"
-  _"io"
-	_"io/ioutil"
-	_"log"
-  _"bufio"
+	_ "io"
+	_ "io/ioutil"
+	_ "log"
+	_ "os/exec"
 	"os/user"
-	_"os/exec"
-	_"path/filepath"
-	_"sync"
+	_ "path/filepath"
+	_ "sync"
 
-	_"golang.org/x/crypto/ssh"
+	_ "golang.org/x/crypto/ssh"
 )
 
 var (
-  HideCommandOutput bool = false
-  localhost *Host = &Host {}
+	HideCommandOutput bool  = false
+	localhost         *Host = &Host{}
 )
 
 type CmdResult struct {
-  Result string
-  Error error
+	Result string
+	Error  error
 }
 
 type CmdOptions struct {
-  UseSudo bool
-  CaptureOutput bool
-  WorkingDirectory string
+	UseSudo          bool
+	CaptureOutput    bool
+	WorkingDirectory string
 }
 
 type Host struct {
@@ -42,7 +41,7 @@ type Host struct {
 type ClientConfig struct {
 	Hosts            []*Host
 	CurrentDirectory string
-  localhost *Host
+	localhost        *Host
 }
 
 func SilenceOutput(beQuiet bool) {
@@ -103,30 +102,30 @@ func CreateHosts(hosts []map[string]string) []*Host {
 
 func NewClient(hosts []*Host) *ClientConfig {
 
-	config := &ClientConfig {}
+	config := &ClientConfig{}
 	config.Hosts = hosts
-  config.localhost = localhost
+	config.localhost = localhost
 
-  currentUser, err := user.Current()
-  if err != nil {
-    panic("could not determine current user")
-  }
+	currentUser, err := user.Current()
+	if err != nil {
+		panic("could not determine current user")
+	}
 
-  localhost.User = currentUser.Username
+	localhost.User = currentUser.Username
 
 	return config
 }
 
 func NewLocalClient() *ClientConfig {
 
-  currentUser, err := user.Current()
-  if err != nil {
-    panic("could not determine current user")
-  }
+	currentUser, err := user.Current()
+	if err != nil {
+		panic("could not determine current user")
+	}
 
-  localhost.User = currentUser.Username
+	localhost.User = currentUser.Username
 
-	return &ClientConfig { localhost: localhost }
+	return &ClientConfig{localhost: localhost}
 }
 
 // func (config *ClientConfig) NewClientInWorkingDirectory(workingDirectory string) *ClientConfig {

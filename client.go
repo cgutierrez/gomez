@@ -3,36 +3,36 @@ package gomez
 import (
 	"fmt"
 	"io/ioutil"
-	_"log"
+	_ "log"
 	"os/user"
-  "strings"
+	"strings"
 
+	"github.com/cgutierrez/goshen"
 	"github.com/gcmurphy/getpass"
 	"golang.org/x/crypto/ssh"
-  "github.com/cgutierrez/goshen"
 )
 
 var (
-  userSshConfig *goshen.SshConfig
+	userSshConfig *goshen.SshConfig
 )
 
 func init() {
-  userSshConfig = goshen.NewSshConfig("~/.ssh/config")
+	userSshConfig = goshen.NewSshConfig("~/.ssh/config")
 }
 
 func LoadKeyFile(path string) (ssh.Signer, error) {
 	var signer ssh.Signer
 
-  // normalize the path when using the users home directory shortcut
-  if strings.HasPrefix(path, "~") {
-    usr, err := user.Current()
+	// normalize the path when using the users home directory shortcut
+	if strings.HasPrefix(path, "~") {
+		usr, err := user.Current()
 
-    if err != nil {
-      return nil, err
-    }
+		if err != nil {
+			return nil, err
+		}
 
-    path = strings.Replace(path, "~", usr.HomeDir, 1)
-  }
+		path = strings.Replace(path, "~", usr.HomeDir, 1)
+	}
 
 	privateBytes, err := ioutil.ReadFile(path)
 
@@ -71,36 +71,36 @@ func LoadDefaultKeyFiles() ([]ssh.Signer, error) {
 
 func CreateSession(host *Host) (*ssh.Client, *ssh.Session, error) {
 
-  // if the host configuration doesn't contain a key file, check the users .ssh/config file
-  // appends any keys found for the matching host to be used for authentication
-  foundHostConfig := userSshConfig.MatchHost(host.Host)
-  if host.KeyFile == "" && foundHostConfig != nil {
+	// if the host configuration doesn't contain a key file, check the users .ssh/config file
+	// appends any keys found for the matching host to be used for authentication
+	foundHostConfig := userSshConfig.MatchHost(host.Host)
+	if host.KeyFile == "" && foundHostConfig != nil {
 
-    if foundHostConfig != nil {
+		if foundHostConfig != nil {
 
-      // set the host to the hostname found in the configuration
-      // allows for using partial host names in the host argument
-      if foundHostConfig.HostName != "" {
-        host.Host = foundHostConfig.HostName
-      }
+			// set the host to the hostname found in the configuration
+			// allows for using partial host names in the host argument
+			if foundHostConfig.HostName != "" {
+				host.Host = foundHostConfig.HostName
+			}
 
-      if host.KeyFile == "" && foundHostConfig.IdentityFile != "" {
-        host.KeyFile = foundHostConfig.IdentityFile
-      }
+			if host.KeyFile == "" && foundHostConfig.IdentityFile != "" {
+				host.KeyFile = foundHostConfig.IdentityFile
+			}
 
-      // use the port form the ssh config if it's supplied
-      if host.Port == "" && foundHostConfig.Port != "" {
-        host.Port = foundHostConfig.Port
-      }
+			// use the port form the ssh config if it's supplied
+			if host.Port == "" && foundHostConfig.Port != "" {
+				host.Port = foundHostConfig.Port
+			}
 
-      // use the user found in the foundHostConfig if one isn't provided
-      if host.User == "" && foundHostConfig.User != "" {
-        host.User = foundHostConfig.User
-      }
-    }
-  }
+			// use the user found in the foundHostConfig if one isn't provided
+			if host.User == "" && foundHostConfig.User != "" {
+				host.User = foundHostConfig.User
+			}
+		}
+	}
 
-	sshConfig := &ssh.ClientConfig { User: host.User, Auth: []ssh.AuthMethod{}, }
+	sshConfig := &ssh.ClientConfig{User: host.User, Auth: []ssh.AuthMethod{}}
 
 	if host.Password != "" {
 		sshConfig.Auth = append(sshConfig.Auth, ssh.Password(host.Password))
@@ -129,7 +129,7 @@ func CreateSession(host *Host) (*ssh.Client, *ssh.Session, error) {
 			password, err := getpass.GetPassWithOptions(fmt.Sprintf("enter password for %s@%s: ", host.User, host.Host), 0, 100)
 
 			if err != nil {
-        fmt.Println(err.Error())
+				fmt.Println(err.Error())
 				return password, err
 			}
 
@@ -138,7 +138,7 @@ func CreateSession(host *Host) (*ssh.Client, *ssh.Session, error) {
 		}))
 	}
 
-	client, err := ssh.Dial("tcp", host.Host + ":" + host.Port, sshConfig)
+	client, err := ssh.Dial("tcp", host.Host+":"+host.Port, sshConfig)
 
 	if err != nil {
 		fmt.Println(err.Error())
