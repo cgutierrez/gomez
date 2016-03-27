@@ -32,6 +32,8 @@ func (config *ClientConfig) local(cmd string, options CmdOptions) (CmdResult) {
 
   cmdStr := cdCmd + cmd
 
+  OutputLocal(cmdStr)
+
   if options.UseSudo {
     cmdStr = WrapSudoCommand(cmdStr)
   }
